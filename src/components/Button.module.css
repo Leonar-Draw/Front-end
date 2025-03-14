@@ -1,0 +1,23 @@
+/* src/components/Button.module.css */
+.customButton {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .orange {
+    background-color: #ff6347; /* 주황색 (사과 게임 스타일) */
+    color: white;
+  }
+  
+  .pink {
+    background-color: #ff9999; /* 핑크색 (단계 화면 스타일) */
+    color: white;
+  }
+  
+  .customButton:hover {
+    opacity: 0.9;
+  }
