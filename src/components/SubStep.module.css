@@ -25,7 +25,7 @@
 .subStepControls {
   display: flex;
   gap: 20px;
-  margin-top: 20px;
+  margin-top: 0px;
 }
 
 .subStepControls button {
@@ -42,30 +42,30 @@
 }
 
 .subStepControls button:first-child {
-  background-color: #ff9aa2; /* 이전으로 버튼 (연핑크) */
+  background-color: #ff9aa2; 
   color: white;
 }
 
 .subStepControls button:nth-child(2) {
-  background-color: #ffdac1; /* 저장하기 버튼 (연한 오렌지) */
+  background-color: #ffdac1; 
   color: black;
 }
 
 .subStepControls button:last-child {
-  background-color: #b5ead7; /* 다음으로 버튼 (연한 청록색) */
+  background-color: #b5ead7; 
   color: black;
 }
 
 .canvasWrapper {
   position: relative;
   display: inline-block;
-  border: 3px solid #666; /* 테두리 추가 (선택 사항) */
+  border: 3px solid #666; 
   padding: 5px;
 }
 
 .clearButton {
   position: absolute;
-  top: -40px; /* 🔥 캔버스의 위쪽 바깥으로 이동 */
+  top: -40px; 
   right: 0;
   background-color: red;
   color: white;
@@ -83,7 +83,7 @@
 
 .progressContainer {
   text-align: center;
-  margin-top: 15px;
+  margin-top: 0px;
 }
 
 .progressMessage {
@@ -92,12 +92,25 @@
   color: #333;
 }
 
-/* 화살표 버튼 */
+.canvasWrapper {
+  position: relative;  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90%;
+  max-width: 800px;
+  margin: auto;
+  border: 2px solid #ccc;
+  padding: 10px;
+  background: white;
+}
+
 .backButton {
   position: absolute;
-  top: 70px;
-  left: 450px;
-  background: transparent;
+  top: -45px;   
+  left: 0px; 
+  z-index: 10;
+  background: none;
   border: none;
   cursor: pointer;
 }

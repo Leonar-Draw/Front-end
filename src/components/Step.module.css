@@ -1,52 +1,95 @@
-/* src/components/Step.module.css */
 .stepContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-color: #fffacd; /* 연한 노란색 배경 */
-    padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #fffacd; /* 연한 노란색 배경 */
+  padding: 20px;
+  position: relative; /* 홈 버튼 위치 조정을 위해 필요 */
+}
+
+.homeButton {
+  background-color: #ff9999;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
+}
+
+.homeButton:hover {
+  background-color: #ff6666;
+}
+
+.homeButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+.stepTitle {
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+
+.stepButtons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4개씩 정렬 */
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.stepButton {
+  width: 250px; /* 버튼 크기 키움 */
+  height: 150px;
+  background-color: #ff9999; /* 핑크색 */
+  border: none;
+  border-radius: 15px;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.stepButton:hover {
+  background-color: #ff6666;
+}
+
+.stepControls {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+/* 퍼센트 텍스트 */
+.progressText {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  margin-top: 5px; /* 🔥 버튼과 간격 주기 */
+  display: block;
+}
+
+/* ✅ 반응형 조정 */
+@media (max-width: 768px) {
+  .homeButton {
+    top: 2vh;
+    left: 3vw;
   }
-  
-  .stepTitle {
-    font-size: 28px;
-    margin-bottom: 20px;
+
+  .homeButton svg {
+    width: 50px;
+    height: 50px;
   }
-  
-  .stepButtons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  
-  .stepButton {
-    padding: 10px;
-    background-color: #ff9999; /* 핑크색 */
-    border: none;
-    border-radius: 10px;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  
-  .stepButton:hover {
-    background-color: #ff6666;
-  }
-  
-  .canvasPlaceholder {
-    width: 300px;
-    height: 100px;
-    background-color: white;
-    border: 1px solid #ccc;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-  }
-  
-  .stepControls {
-    display: flex;
-    gap: 10px;
-  }
+}

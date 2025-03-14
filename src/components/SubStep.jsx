@@ -125,7 +125,9 @@ const SubStep = () => {
     // ✅ userPath가 아니라 최신 newPath로 퍼센트 계산
     setUserPath((prevPath) => {
       const percentage = computeMatchPercentage(prevPath);
-  
+      
+      localStorage.setItem(`step-${id}-${subId}`, percentage.toFixed(1));
+      
       if (percentage >= 70) {
         setMessage(`🎉 성공적으로 그렸습니다! (${percentage.toFixed(1)}%)`);
       } else {
@@ -203,15 +205,14 @@ const SubStep = () => {
 
   return (
   <div className={styles.subStepContainer}>
-    
-
     <h2 className={styles.subStepTitle}>Step {id} - {subId}</h2>
 
     <div id="captureArea" className={styles.canvasWrapper}>
-      {/* ✅ 화살표 아이콘 (왼쪽 위) */}
+      {/* ✅ 화살표 아이콘 (캔버스 왼쪽 위) */}
       <button className={styles.backButton} onClick={() => navigate(`/step/${id}`)}>
         <Icon icon={arrowLeft} width="30" height="30" />
       </button>
+
       {/* ✅ 초기화 버튼 */}
       <button className={styles.clearButton} onClick={clearCanvas}>🗑 초기화</button>
       
@@ -236,21 +237,30 @@ const SubStep = () => {
 
     {/* ✅ 버튼 컨트롤 영역 */}
     <div className={styles.subStepControls}>
-      <Button 
-        text="이전으로" 
-        onClick={handlePrevStep} 
-        color="pink" 
-      />
+      {/* 이전 버튼 (1-1이면 숨김) */}
+      {!(id === "1" && subId === "1") && (
+        <Button 
+          text="이전으로" 
+          onClick={handlePrevStep} 
+          color="pink" 
+        />
+      )}
+
+      {/* 저장 버튼 (항상 보이도록 유지) */}
       <Button 
         text="저장하기" 
         onClick={saveCaptureAreaAsImage} 
         color="pink" 
       />
-      <Button 
-        text="다음으로" 
-        onClick={handleNextStep} 
-        color="pink" 
-      />
+
+      {/* 다음 버튼 (3-12이면 숨김) */}
+      {!(id === "3" && subId === "12") && (
+        <Button 
+          text="다음으로" 
+          onClick={handleNextStep} 
+          color="pink" 
+        />
+      )}
     </div>
   </div>
 );
