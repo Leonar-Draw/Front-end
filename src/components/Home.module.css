@@ -1,0 +1,61 @@
+/* src/components/Home.module.css */
+
+/* 전체 컨테이너 */
+.container {
+  /* 화면 전체 사용 */
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  
+  /* 배경색 (연한 노랑) */
+  background-color: #FFF9D9;
+  
+  /* 로고/내용 배치에 필요한 position 설정 */
+  position: relative;
+}
+
+/* 오른쪽 상단 로고 */
+.logo {
+  position: absolute;
+  top: 2rem;    /* 필요에 맞게 조절 */
+  right: 2rem;  /* 필요에 맞게 조절 */
+  width: 80px;  /* 로고 크기 */
+  height: auto; /* 비율 유지 */
+}
+
+/* 왼쪽 텍스트·버튼 묶음 */
+.content {
+  /* 왼쪽에 여백을 두어 배치 */
+  margin-left: 2rem;
+  margin-top: 3rem;
+}
+
+/* 제목 스타일 */
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+/* 설명 문구 */
+.subtitle {
+  font-size: 1rem;
+  line-height: 1.4;
+  margin-bottom: 2rem;
+}
+
+/* 시작하기 버튼 */
+.startButton {
+  font-size: 1rem;
+  padding: 0.8rem 1.6rem;
+  background-color: #FFB6C1; /* 연한 핑크 */
+  border: none;
+  border-radius: 4px;
+  color: #333;
+  cursor: pointer;
+}
+
+.startButton:hover {
+  background-color: #FF9EAE;
+}
