@@ -1,61 +1,79 @@
-/* src/components/Home.module.css */
+@font-face {
+  font-family: 'GangwonEdu_OTFBoldA';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/GangwonEdu_OTFBoldA.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
 
-/* 전체 컨테이너 */
+/* 전체 화면을 채우며 중앙 정렬 */
 .container {
-  /* 화면 전체 사용 */
   width: 100vw;
   height: 100vh;
-  margin: 0;
-  padding: 0;
-  
-  /* 배경색 (연한 노랑) */
-  background-color: #FFF9D9;
-  
-  /* 로고/내용 배치에 필요한 position 설정 */
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-image: url('../../public/images/mainlogo3.png');
+  background-size: cover; /* 화면 전체를 채움 */
+  background-position: center; /* 중앙 정렬 */
+  background-repeat: no-repeat; /* 반복 없음 */
+  width: 100vw;
+  height: 100vh;
 }
 
-/* 오른쪽 상단 로고 */
-.logo {
-  position: absolute;
-  top: 2rem;    /* 필요에 맞게 조절 */
-  right: 2rem;  /* 필요에 맞게 조절 */
-  width: 80px;  /* 로고 크기 */
-  height: auto; /* 비율 유지 */
-}
-
-/* 왼쪽 텍스트·버튼 묶음 */
+/* 텍스트와 이미지를 감싸는 레이아웃 */
 .content {
-  /* 왼쪽에 여백을 두어 배치 */
-  margin-left: 2rem;
-  margin-top: 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 70vw; /* 화면의 70% */
+  max-width: 1000px; /* 최대 너비 제한 */
+}
+
+/* 왼쪽 섹션 (텍스트) */
+.leftSection {
+  text-align: left;
 }
 
 /* 제목 스타일 */
 .title {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
+  font-family: 'GangwonEdu_OTFBoldA';
+  font-size: 3.5rem;
+  /* font-weight: bold; */
+  /* margin: 10; */
 }
 
-/* 설명 문구 */
+/* 부제목 스타일 */
 .subtitle {
-  font-size: 1rem;
-  line-height: 1.4;
-  margin-bottom: 2rem;
+  font-family: 'GangwonEdu_OTFBoldA';
+  font-size: 2rem;
+  line-height: 1.6;
+  margin-bottom: 150px;
 }
 
-/* 시작하기 버튼 */
+/* 오른쪽 섹션 (이미지) */
+.rightSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 로고 이미지 스타일 */
+.logo {
+  width: 500px;  /* 크기 조정 */
+  height: auto;
+}
+
+/* 시작 버튼 스타일 (아래 중앙 정렬) */
 .startButton {
-  font-size: 1rem;
-  padding: 0.8rem 1.6rem;
-  background-color: #FFB6C1; /* 연한 핑크 */
+  font-size: 3rem;
+  padding: 1rem 2rem;
+  /* background-color: #FFB6C1; 연한 핑크 */
   border: none;
-  border-radius: 4px;
-  color: #333;
+  border-radius: 8px;
+  color: black;
   cursor: pointer;
-}
-
-.startButton:hover {
-  background-color: #FF9EAE;
+  margin-top: 400px;
+  transition: 0.3s;
+  font-family: 'GangwonEdu_OTFBoldA';
 }
