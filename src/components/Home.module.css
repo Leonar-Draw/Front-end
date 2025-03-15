@@ -10,7 +10,6 @@
   width: 100vw;
   height: 100vh;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
   background-image: url('../../public/images/mainlogo3.png');
@@ -19,54 +18,9 @@
   background-repeat: no-repeat; /* 반복 없음 */
 }
 
-/* 텍스트와 이미지를 감싸는 레이아웃 */
-.content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 70vw; /* 화면의 70% */
-  max-width: 1000px; /* 최대 너비 제한 */
-}
-
-/* 왼쪽 섹션 (텍스트) */
-.leftSection {
-  text-align: left;
-}
-
-/* 제목 스타일 */
-.title {
-  font-family: 'GangwonEdu_OTFBoldA';
-  font-size: 3.5rem;
-  /* font-weight: bold; */
-  /* margin: 10; */
-}
-
-/* 부제목 스타일 */
-.subtitle {
-  font-family: 'GangwonEdu_OTFBoldA';
-  font-size: 2rem;
-  line-height: 1.6;
-  margin-bottom: 150px;
-}
-
-/* 오른쪽 섹션 (이미지) */
-.rightSection {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* 로고 이미지 스타일 */
-.logo {
-  width: 500px;  /* 크기 조정 */
-  height: auto;
-}
-
 /* 시작 버튼 스타일 (아래 중앙 정렬) */
 .startButton {
-  font-size: 3rem;
-  padding: 1rem 2rem;
-  /* background-color: #FFB6C1; 연한 핑크 */
+  font-size: 5rem;
   border: none;
   border-radius: 8px;
   color: black;
@@ -74,4 +28,8 @@
   margin-top: 400px;
   transition: 0.3s;
   font-family: 'GangwonEdu_OTFBoldA';
+}
+
+.startButton:hover{
+  text-decoration: underline;
 }
