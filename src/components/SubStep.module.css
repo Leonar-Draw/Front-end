@@ -1,3 +1,10 @@
+@font-face {
+  font-family: 'GangwonEdu_OTFBoldA';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/GangwonEdu_OTFBoldA.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .subStepContainer {
   display: flex;
   flex-direction: column;
@@ -5,10 +12,15 @@
   justify-content: center;
   height: 100vh;
   background-color: #f8f8f8;
+  background-image: url('../../public/images/background.png');
+  background-size: cover; /* 화면 전체를 채움 */
+  background-position: center; /* 중앙 정렬 */
+  background-repeat: no-repeat; /* 반복 없음 */
 }
 
 .subStepTitle {
-  font-size: 2rem;
+  font-family: 'GangwonEdu_OTFBoldA';
+  font-size: 3rem;
   font-weight: bold;
   color: #333;
   margin-bottom: 20px;
@@ -29,12 +41,14 @@
 }
 
 .subStepControls button {
+  font-family: 'GangwonEdu_OTFBoldA';
   padding: 10px 20px;
-  font-size: 1rem;
+  font-size: 1.5rem;
   border: none;
   cursor: pointer;
   border-radius: 5px;
   transition: 0.3s;
+  margin-bottom: 50px;
 }
 
 .subStepControls button:hover {
@@ -71,7 +85,8 @@
   color: white;
   border: none;
   padding: 8px 12px;
-  font-size: 14px;
+  font-family: 'GangwonEdu_OTFBoldA';
+  font-size: 1rem;
   cursor: pointer;
   border-radius: 5px;
   font-weight: bold;
@@ -87,6 +102,7 @@
 }
 
 .progressMessage {
+  font-family: 'GangwonEdu_OTFBoldA';
   font-size: 1.5rem;
   font-weight: bold;
   color: #333;
@@ -99,7 +115,6 @@
   justify-content: center;
   width: 90%;
   max-width: 800px;
-  margin: auto;
   border: 2px solid #ccc;
   padding: 10px;
   background: white;

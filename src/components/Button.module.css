@@ -1,21 +1,30 @@
 /* src/components/Button.module.css */
+
+@font-face {
+  font-family: 'GangwonEdu_OTFBoldA';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/GangwonEdu_OTFBoldA.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .customButton {
     padding: 10px 20px;
     border: none;
     border-radius: 20px;
-    font-size: 18px;
+    font-size: 1.5rem;
     cursor: pointer;
     transition: background-color 0.3s;
+    font-family: 'GangwonEdu_OTFBoldA';
   }
   
   .orange {
-    background-color: #ff6347; /* 주황색 (사과 게임 스타일) */
-    color: white;
+    background-color: #FFFAF6; /* 주황색 (사과 게임 스타일) */
+    color: black;
   }
   
   .pink {
-    background-color: #ff9999; /* 핑크색 (단계 화면 스타일) */
-    color: white;
+    background-color: #FFFAF6; /* 핑크색 (단계 화면 스타일) */
+    color: black;
   }
   
   .customButton:hover {

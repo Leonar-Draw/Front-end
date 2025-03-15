@@ -17,8 +17,6 @@
   background-size: cover; /* 화면 전체를 채움 */
   background-position: center; /* 중앙 정렬 */
   background-repeat: no-repeat; /* 반복 없음 */
-  width: 100vw;
-  height: 100vh;
 }
 
 /* 텍스트와 이미지를 감싸는 레이아웃 */

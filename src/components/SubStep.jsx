@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Button from './Button';
 import styles from './SubStep.module.css';
-import html2canvas from "html2canvas";
 import { Icon } from '@iconify/react';
 import arrowLeft from '@iconify-icons/mdi/arrow-left';
 
@@ -14,23 +13,11 @@ const SubStep = () => {
   const [drawing, setDrawing] = useState(false);
   const [userPath, setUserPath] = useState([]);
   const [message, setMessage] = useState("🎨 그림을 그려보세요!");
-  const [lineWidth, setLineWidth] = useState(5); // 기본 선 굵기 설정
+  const [templateData, setTemplateData] = useState(null);
+  const [totalTemplatePixels, setTotalTemplatePixels] = useState(1);
 
   const getStepImage = () => {
-    const stepImages = {
-      "1-1": "/images/line.png",
-      "1-2": "/images/monariza.png",
-      "1-3": "/images/cross.png",
-      "1-4": "/images/semi-circle.png",
-      "1-5": "/images/circle.png",
-      "2-1": "/images/fish.png",
-      "2-2": "/images/clover.png",
-      "2-3": "/images/dog.png",
-      "2-4": "/images/car.png",
-      "3-1": "/images/starry-night.png",
-      "3-2": "/images/mona-lisa.png"
-    };
-    return stepImages[`${id}-${subId}`] || null;
+    return `/images/${id}step/${subId}.png`; 
   };
 
   useEffect(() => {
@@ -48,9 +35,47 @@ const SubStep = () => {
       const img = new Image();
       img.src = imgSrc;
       img.onload = () => {
-        ctx.globalAlpha = 0.3;
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        ctx.globalAlpha = 1.0;
+        // offscreen canvas를 사용하여 템플릿 이미지를 회색으로 변환
+        const offCanvas = document.createElement('canvas');
+        offCanvas.width = canvas.width;
+        offCanvas.height = canvas.height;
+        const offCtx = offCanvas.getContext('2d');
+
+        // 원본 이미지를 offscreen canvas에 그림
+        offCtx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        // offscreen canvas에서 이미지 데이터를 가져옴
+        const imageData = offCtx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+
+        // 검은색(또는 어두운) 픽셀을 회색으로 변환 (예: rgb(150,150,150))
+        for (let i = 0; i < data.length; i += 4) {
+          // 픽셀이 투명하지 않고, R, G, B 값이 낮으면 (검정 또는 어두운 색) 변환
+          if (data[i+3] > 0 && data[i] < 100 && data[i+1] < 100 && data[i+2] < 100) {
+            data[i] = 150;     // Red
+            data[i+1] = 150;   // Green
+            data[i+2] = 150;   // Blue
+          }
+        }
+        // 수정된 데이터를 offscreen canvas에 다시 적용
+        offCtx.putImageData(imageData, 0, 0);
+
+        // 변환된 회색 템플릿을 메인 캔버스에 그림
+        ctx.drawImage(offCanvas, 0, 0);
+
+        // 진행률 계산을 위해 템플릿 데이터를 저장
+        const processedTemplate = offCtx.getImageData(0, 0, canvas.width, canvas.height);
+        setTemplateData(processedTemplate);
+
+        // 회색(50~200 범위의 색상) 픽셀 수를 총 템플릿 픽셀 수로 계산
+        let count = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i], g = data[i + 1], b = data[i + 2];
+          if (r >= 50 && r <= 200 && g >= 50 && g <= 200 && b >= 50 && b <= 200) {
+            count++;
+          }
+        }
+        setTotalTemplatePixels(count);
       };
     }
   };
@@ -74,9 +99,10 @@ const SubStep = () => {
     setUserPath([]);
     setMessage("🖌️ 그리는 중...");
     const ctx = ctxRef.current;
-    ctx.lineWidth = 10; 
+    ctx.lineWidth = 40; 
     ctx.lineCap = "round"; 
     ctx.lineJoin = "round"; 
+    ctx.strokeStyle = "#000000"; 
 
     const { x, y } = getMousePos(e);
     ctx.beginPath();
@@ -84,19 +110,24 @@ const SubStep = () => {
   };
 
   const computeMatchPercentage = (path) => {
+    if (!templateData || totalTemplatePixels === 0) return 0;
+
     let matchCount = 0;
-    const tolerance = 20; // ✅ 거리 오차 범위 조금 넓힘
-    const templatePath = generateTemplatePath();
-  
-    path.forEach(({ x: ux, y: uy }) => {
-      const isMatched = templatePath.some(({ x: tx, y: ty }) => 
-        Math.abs(ux - tx) <= tolerance && Math.abs(uy - ty) <= tolerance
-      );
-      if (isMatched) matchCount++;
+    const imgData = templateData.data;
+    const width = canvasRef.current.width;
+    const tolerance = 30; 
+
+    path.forEach(({ x, y }) => {
+      const pixelIndex = (Math.round(y) * width + Math.round(x)) * 4;
+      const r = imgData[pixelIndex];
+      const g = imgData[pixelIndex + 1];
+      const b = imgData[pixelIndex + 2];
+
+      const isGray = r >= 50 && r <= 200 && g >= 50 && g <= 200 && b >= 50 && b <= 200;
+      if (isGray) matchCount++;
     });
-  
-    // ✅ 전체 그린 부분 중 매칭된 비율 반환
-    return matchCount > 0 ? (matchCount / templatePath.length) * 100 : 0;
+
+    return (matchCount / totalTemplatePixels) * 100;
   };
 
   const draw = (e) => {
@@ -106,14 +137,11 @@ const SubStep = () => {
     
     setUserPath((prevPath) => {
       const newPath = [...prevPath, { x, y }];
-      const percentage = computeMatchPercentage(newPath); // ✅ newPath 사용
-  
-      // ✅ 실시간 퍼센트 업데이트
-      setMessage(`✅ ${percentage.toFixed(1)}% 그렸습니다!`);
-  
+      const percentage = computeMatchPercentage(newPath);
+      setMessage(`✅ ${percentage.toFixed(1)}% 정확도`);
       return newPath;
     });
-  
+
     ctx.lineTo(x, y);
     ctx.stroke();
   };
@@ -121,11 +149,9 @@ const SubStep = () => {
   const stopDrawing = () => {
     setDrawing(false);
     ctxRef.current.closePath();
-  
-    // ✅ userPath가 아니라 최신 newPath로 퍼센트 계산
+
     setUserPath((prevPath) => {
       const percentage = computeMatchPercentage(prevPath);
-      
       localStorage.setItem(`step-${id}-${subId}`, percentage.toFixed(1));
       
       if (percentage >= 70) {
@@ -133,137 +159,68 @@ const SubStep = () => {
       } else {
         setMessage("❌ 다시 시도하세요!");
       }
-  
       return prevPath;
     });
   };
 
-  const generateTemplatePath = () => {
-    let path = [];
-    
-    // Step 별로 템플릿 경로 다르게 설정
-    if (id === "1" && subId === "1") {  
-      // 1-1 단계는 직선
-      for (let x = 500; x <= 1500; x += 10) {
-        path.push({ x, y: 800 }); // 직선이므로 y값은 고정
-      }
-    } else if (id === "1" && subId === "2") {
-      // 1-2 단계는 모나리자 (그림이므로 패턴이 필요)
-      for (let angle = 0; angle <= Math.PI * 2; angle += 0.05) {
-        let x = 1000 + 150 * Math.cos(angle);
-        let y = 800 + 150 * Math.sin(angle);
-        path.push({ x, y });
-      }
-    } else {
-      // 기본 원형 패턴 (기존 코드)
-      for (let angle = Math.PI; angle <= 2 * Math.PI; angle += 0.05) {
-        let x = 1000 + 150 * Math.cos(angle);
-        let y = 800 + 150 * Math.sin(angle);
-        path.push({ x, y });
-      }
-    }
-    
-    return path;
-  };
-
-  // ✅ 이전 단계 이동 (1-1 이하로 내려가지 않도록 제한)
   const handlePrevStep = () => {
-    // 현재 subId가 1이면 이전 Step으로 이동
-    if (parseInt(subId) === 1) {
-      const prevStep = Math.max(1, parseInt(id) - 1); // 최소 Step 1까지 유지
-      navigate(`/step/${prevStep}/12`); // 이전 Step의 마지막 단계(12)로 이동
+    const currentStep = parseInt(id);
+    const currentSubStep = parseInt(subId);
+    if (currentSubStep === 1) {
+      if (currentStep > 1) {
+        navigate(`/step/${currentStep - 1}/12`);
+      }
     } else {
-      navigate(`/step/${id}/${parseInt(subId) - 1}`);
+      navigate(`/step/${currentStep}/${currentSubStep - 1}`);
     }
   };
 
-  // ✅ 다음 단계 이동 (1-12 이상으로 넘어가지 않도록 제한)
   const handleNextStep = () => {
-    // 현재 subId가 12이면 다음 Step으로 이동
-    if (parseInt(subId) === 12) {
-      const nextStep = Math.min(3, parseInt(id) + 1); // 최대 Step 3까지 이동 가능
-      navigate(`/step/${nextStep}/1`); // 다음 Step의 첫 번째 단계(1)로 이동
+    const currentStep = parseInt(id);
+    const currentSubStep = parseInt(subId);
+    if (currentSubStep === 12) {
+      if (currentStep < 3) {
+        navigate(`/step/${currentStep + 1}/1`);
+      }
     } else {
-      navigate(`/step/${id}/${parseInt(subId) + 1}`);
+      navigate(`/step/${currentStep}/${currentSubStep + 1}`);
     }
-  };
-
-  // ✅ 'captureArea' 영역을 캡처하여 PNG로 저장하는 함수
-  const saveCaptureAreaAsImage = () => {
-    const captureElement = document.getElementById("captureArea");  // ✅ 캡처할 영역 설정
-
-    html2canvas(captureElement, { backgroundColor: null }).then((canvas) => {
-      const image = canvas.toDataURL("image/png");  // ✅ PNG 변환
-      const link = document.createElement("a");
-      link.href = image;
-      link.download = `capture_${id}_${subId}.png`;  // ✅ 파일명 설정
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
   };
 
   return (
-  <div className={styles.subStepContainer}>
-    <h2 className={styles.subStepTitle}>Step {id} - {subId}</h2>
-
-    <div id="captureArea" className={styles.canvasWrapper}>
-      {/* ✅ 화살표 아이콘 (캔버스 왼쪽 위) */}
-      <button className={styles.backButton} onClick={() => navigate(`/step/${id}`)}>
-        <Icon icon={arrowLeft} width="30" height="30" />
-      </button>
-
-      {/* ✅ 초기화 버튼 */}
-      <button className={styles.clearButton} onClick={clearCanvas}>🗑 초기화</button>
-      
-      {/* ✅ 캔버스 */}
-      <canvas
-        ref={canvasRef}
-        className={styles.drawingCanvas}
-        width={2000}
-        height={1600}
-        onMouseDown={startDrawing}
-        onMouseMove={draw}
-        onMouseUp={stopDrawing}
-        onMouseEnter={() => canvasRef.current.style.cursor = "url('/images/brush handwriting.cur'), auto"}
-        onMouseLeave={() => canvasRef.current.style.cursor = "default"}
-      ></canvas>
+    <div className={styles.subStepContainer}>
+      <h2 className={styles.subStepTitle}>Step {id} - {subId}</h2>
+      <div id="captureArea" className={styles.canvasWrapper}>
+        <button className={styles.backButton} onClick={() => navigate(`/step/${id}`)}>
+          <Icon icon={arrowLeft} width="30" height="30" />
+        </button>
+        <button className={styles.clearButton} onClick={clearCanvas}> 초기화</button>
+        <canvas
+          ref={canvasRef}
+          className={styles.drawingCanvas}
+          width={2000}
+          height={1600}
+          onMouseDown={startDrawing}
+          onMouseMove={draw}
+          onMouseUp={stopDrawing}
+          onMouseEnter={() => canvasRef.current.style.cursor = "url('/images/brush handwriting.cur'), auto"}
+          onMouseLeave={() => canvasRef.current.style.cursor = "default"}
+        ></canvas>
+      </div>
+      <div className={styles.progressContainer}>
+        <p className={styles.progressMessage}>{message}</p>
+      </div>
+      <div className={styles.subStepControls}>
+        {!(id === "1" && subId === "1") && (
+          <Button text="이전으로" onClick={handlePrevStep} color="pink" />
+        )}
+        <Button text="저장하기" onClick={() => alert('저장 기능 추가 가능')} color="pink" />
+        {!(id === "3" && subId === "12") && (
+          <Button text="다음으로" onClick={handleNextStep} color="pink" />
+        )}
+      </div>
     </div>
-
-    {/* ✅ 실시간 퍼센트 및 성공 여부 메시지 표시 */}
-    <div className={styles.progressContainer}>
-      <p className={styles.progressMessage}>{message}</p>
-    </div>
-
-    {/* ✅ 버튼 컨트롤 영역 */}
-    <div className={styles.subStepControls}>
-      {/* 이전 버튼 (1-1이면 숨김) */}
-      {!(id === "1" && subId === "1") && (
-        <Button 
-          text="이전으로" 
-          onClick={handlePrevStep} 
-          color="pink" 
-        />
-      )}
-
-      {/* 저장 버튼 (항상 보이도록 유지) */}
-      <Button 
-        text="저장하기" 
-        onClick={saveCaptureAreaAsImage} 
-        color="pink" 
-      />
-
-      {/* 다음 버튼 (3-12이면 숨김) */}
-      {!(id === "3" && subId === "12") && (
-        <Button 
-          text="다음으로" 
-          onClick={handleNextStep} 
-          color="pink" 
-        />
-      )}
-    </div>
-  </div>
-);
+  );
 };
 
 export default SubStep;
