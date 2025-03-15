@@ -1,19 +1,30 @@
+@font-face {
+  font-family: 'GangwonEdu_OTFBoldA';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/GangwonEdu_OTFBoldA.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .stepContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background-color: #fffacd; /* 연한 노란색 배경 */
   padding: 20px;
   position: relative; /* 홈 버튼 위치 조정을 위해 필요 */
+  background-image: url('../../public/images/background.png');
+  background-size: cover; /* 화면 전체를 채움 */
+  background-position: center; /* 중앙 정렬 */
+  background-repeat: no-repeat; /* 반복 없음 */
+  font-family: 'GangwonEdu_OTFBoldA';
 }
 
 .homeButton {
-  background-color: #ff9999;
+  background-color: #FFFAF6;
   border: none;
   border-radius: 10px;
-  color: white;
+  color: black;
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
@@ -22,10 +33,11 @@
   align-items: center;
   justify-content: center;
   transition: 0.3s;
+  font-family: 'GangwonEdu_OTFBoldA';
 }
 
 .homeButton:hover {
-  background-color: #ff6666;
+  background-color: #FFFAF6;
 }
 
 .homeButton svg {
@@ -37,6 +49,7 @@
   font-size: 36px;
   font-weight: bold;
   margin-bottom: 30px;
+  font-family: 'GangwonEdu_OTFBoldA';
 }
 
 .stepButtons {
@@ -49,12 +62,13 @@
 .stepButton {
   width: 250px; /* 버튼 크기 키움 */
   height: 150px;
-  background-color: #ff9999; /* 핑크색 */
+  background-color: #FFFAF6; /* 핑크색 */
   border: none;
   border-radius: 15px;
-  color: white;
-  font-size: 18px;
+  color: black;
+  font-size: 2.5rem;
   font-weight: bold;
+  font-family: 'GangwonEdu_OTFBoldA';
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -63,7 +77,7 @@
 }
 
 .stepButton:hover {
-  background-color: #ff6666;
+  background-color: #FFFAF6;
 }
 
 .stepControls {
@@ -74,11 +88,12 @@
 
 /* 퍼센트 텍스트 */
 .progressText {
-  font-size: 14px;
+  font-size: 1.5rem;
   font-weight: bold;
-  color: #333;
+  color: black;
   margin-top: 5px; /* 🔥 버튼과 간격 주기 */
   display: block;
+  font-family: 'GangwonEdu_OTFBoldA';
 }
 
 /* ✅ 반응형 조정 */
