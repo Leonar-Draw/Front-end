@@ -54,7 +54,7 @@ const Step = () => {
 
         {/* ✅ 홈 버튼을 추가 (저장하기 버튼 자리에) */}
         <button className={styles.homeButton} onClick={() => navigate('/')}>
-          <Icon icon={homeIcon} width="30" height="30" />
+          <Icon icon={homeIcon} width="300" height="300" />
         </button>
         
         <Button text="다음 단계" onClick={handleNextStep} color="pink" />
