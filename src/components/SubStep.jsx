@@ -214,6 +214,17 @@ const SubStep = () => {
     });
   };
 
+  // 캔버스를 PNG 파일로 저장하는 함수
+  const saveCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const image = canvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.href = image;
+    link.download = `canvas-step-${id}-${subId}.png`;
+    link.click();
+  };
+
   const handlePrevStep = () => {
     const currentStep = parseInt(id);
     const currentSubStep = parseInt(subId);
@@ -274,7 +285,7 @@ const SubStep = () => {
         {!(id === "1" && subId === "1") && (
           <Button text="이전으로" onClick={handlePrevStep} color="pink" />
         )}
-        <Button text="저장하기" onClick={() => alert("저장 기능 추가 가능")} color="pink" />
+        <Button text="저장하기" onClick={saveCanvas} color="pink" />
         {!(id === "3" && subId === "12") && (
           <Button text="다음으로" onClick={handleNextStep} color="pink" />
         )}
