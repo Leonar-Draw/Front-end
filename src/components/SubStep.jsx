@@ -14,18 +14,18 @@ const SubStep = () => {
   // step2,3: 선 두께 5, 매칭 영역 = 5픽셀 그대로 인식
   const isStep1 = parseInt(id) === 1;
   const lineThickness = isStep1 ? 40 : 5;
-  const matchThickness = isStep1 ? lineThickness / 2 : lineThickness; 
+  const matchThickness = isStep1 ? lineThickness / 2 : lineThickness;
 
   // 캔버스 ref (maskCanvas는 제거)
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
 
-  const [drawing, setDrawing] = useState(false);
+  const [drawing, setDrawing] = useState(false); // 현재 사용자가 캔버스에 그림을 그리고 있는지 여부
   const [userPath, setUserPath] = useState([]); // 그린 점들을 누적
   const [message, setMessage] = useState("🎨 그림을 그려보세요!");
   const [progress, setProgress] = useState(0); // 현재 진행률 (%)
   const [templateData, setTemplateData] = useState(null);
-  const [totalTemplatePixels, setTotalTemplatePixels] = useState(1);
+  const [totalTemplatePixels, setTotalTemplatePixels] = useState(1); // 도안의 회색 픽셀 수를 저장 
 
   // PNG 이미지 경로
   const getStepImage = () => `/images/${id}step/${subId}.png`;
@@ -125,6 +125,8 @@ const SubStep = () => {
     setMessage("🎨 그림을 그려보세요!");
   };
 
+  // 마우스 이벤트 객체 e를 이용해, 현재 캔버스 내부의 정확한 픽셀 좌표를 계산
+  // 캔버스의 실제 크기와 브라우저에 표시되는 크기 간의 비율을 고려하여 좌표를 조정
   const getMousePos = (e) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
@@ -133,6 +135,7 @@ const SubStep = () => {
     return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
   };
 
+  // 마우스 버튼을 누를때 그리기 모드 활성화
   const startDrawing = (e) => {
     setDrawing(true);
     setMessage("🖌️ 그리는 중...");
@@ -144,6 +147,38 @@ const SubStep = () => {
     const { x, y } = getMousePos(e);
     ctx.beginPath();
     ctx.moveTo(x, y);
+  };
+
+  const draw = (e) => {
+    if (!drawing) return;
+    const ctx = ctxRef.current;
+    const { x, y } = getMousePos(e);
+    setUserPath((prevPath) => {
+      const newPath = [...prevPath, { x, y }];
+      const perc = computeMatchPercentage(newPath);
+      setProgress(perc);
+      setMessage(`✅ 진행률: ${perc.toFixed(1)}%`);
+      return newPath;
+    });
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  const stopDrawing = () => {
+    setDrawing(false);
+    ctxRef.current.closePath();
+    setUserPath((prevPath) => {
+      const perc = computeMatchPercentage(prevPath);
+      localStorage.setItem(`drawing-step-${id}-${subId}`, JSON.stringify(prevPath));
+      localStorage.setItem(`step-${id}-${subId}`, perc.toFixed(1));
+      setProgress(perc);
+      if (perc >= 70) {
+        setMessage(`🎉 성공적으로 그렸습니다! (${perc.toFixed(1)}%)`);
+      } else {
+        setMessage(`❌ 다시 시도하세요! / 진행률: ${perc.toFixed(1)}%`);
+      }
+      return prevPath;
+    });
   };
 
   // 진행률 계산: 매칭 영역 두께(matchThickness)를 반영
@@ -180,38 +215,6 @@ const SubStep = () => {
     console.log(`현재 칠한 픽셀: ${matchCount} / 총 회색 픽셀: ${totalTemplatePixels}`);
     const perc = (matchCount / totalTemplatePixels) * 100;
     return perc;
-  };
-
-  const draw = (e) => {
-    if (!drawing) return;
-    const ctx = ctxRef.current;
-    const { x, y } = getMousePos(e);
-    setUserPath((prevPath) => {
-      const newPath = [...prevPath, { x, y }];
-      const perc = computeMatchPercentage(newPath);
-      setProgress(perc);
-      setMessage(`✅ 진행률: ${perc.toFixed(1)}%`);
-      return newPath;
-    });
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  };
-
-  const stopDrawing = () => {
-    setDrawing(false);
-    ctxRef.current.closePath();
-    setUserPath((prevPath) => {
-      const perc = computeMatchPercentage(prevPath);
-      localStorage.setItem(`drawing-step-${id}-${subId}`, JSON.stringify(prevPath));
-      localStorage.setItem(`step-${id}-${subId}`, perc.toFixed(1));
-      setProgress(perc);
-      if (perc >= 70) {
-        setMessage(`🎉 성공적으로 그렸습니다! (${perc.toFixed(1)}%)`);
-      } else {
-        setMessage(`❌ 다시 시도하세요! / 진행률: ${perc.toFixed(1)}%`);
-      }
-      return prevPath;
-    });
   };
 
   // 캔버스를 PNG 파일로 저장하는 함수
