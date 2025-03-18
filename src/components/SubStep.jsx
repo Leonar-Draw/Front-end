@@ -10,29 +10,35 @@ const SubStep = () => {
   const navigate = useNavigate();
 
   // Step별 선 두께 설정:
-  // step1: 선 두께 40, 매칭 영역 반지름 = 40/2 = 20
-  // step2,3: 선 두께 5, 매칭 영역 = 5픽셀 그대로 인식
   const isStep1 = parseInt(id) === 1;
   const lineThickness = isStep1 ? 40 : 5;
   const matchThickness = isStep1 ? lineThickness / 2 : lineThickness;
 
-  // 캔버스 ref (maskCanvas는 제거)
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
 
-  const [drawing, setDrawing] = useState(false); // 현재 사용자가 캔버스에 그림을 그리고 있는지 여부
+  const [drawing, setDrawing] = useState(false); // 그리기 모드 여부
   const [userPath, setUserPath] = useState([]); // 그린 점들을 누적
   const [message, setMessage] = useState("🎨 그림을 그려보세요!");
-  const [progress, setProgress] = useState(0); // 현재 진행률 (%)
+  const [progress, setProgress] = useState(0); // 진행률 (%)
   const [templateData, setTemplateData] = useState(null);
-  const [totalTemplatePixels, setTotalTemplatePixels] = useState(1); // 도안의 회색 픽셀 수를 저장 
+  const [totalTemplatePixels, setTotalTemplatePixels] = useState(1); // 템플릿의 회색 픽셀 수
 
-  // PNG 이미지 경로
   const getStepImage = () => `/images/${id}step/${subId}.png`;
 
+  // id 또는 subId가 변경될 때 템플릿 다시 그리기
   useEffect(() => {
     drawTemplate();
   }, [id, subId]);
+
+  // drawing 상태에 따라 커서 스타일 업데이트 (그리기 모드일 때는 붓 아이콘)
+  useEffect(() => {
+    if (canvasRef.current) {
+      canvasRef.current.style.cursor = drawing
+        ? "url('/images/brush handwriting.cur'), auto"
+        : "default";
+    }
+  }, [drawing]);
 
   const drawTemplate = () => {
     const canvas = canvasRef.current;
@@ -69,13 +75,14 @@ const SubStep = () => {
         offCtx.putImageData(imageData, 0, 0);
         // 템플릿 그리기
         ctx.drawImage(offCanvas, 0, 0);
-        // 템플릿 데이터 저장 (진행률 계산용)
         const processedTemplate = offCtx.getImageData(0, 0, offCanvas.width, offCanvas.height);
         setTemplateData(processedTemplate);
         // 회색 픽셀 수 계산 (조건: r, g, b가 50~200)
         let count = 0;
         for (let i = 0; i < data.length; i += 4) {
-          const r = data[i], g = data[i + 1], b = data[i + 2];
+          const r = data[i],
+            g = data[i + 1],
+            b = data[i + 2];
           if (r >= 50 && r <= 200 && g >= 50 && g <= 200 && b >= 50 && b <= 200) {
             count++;
           }
@@ -83,7 +90,7 @@ const SubStep = () => {
         console.log("총 회색 픽셀 수:", count);
         setTotalTemplatePixels(count);
 
-        // 저장된 그리기 데이터(userPath)가 있다면 불러와서 재그리기
+        // 저장된 그리기 데이터 불러오기
         const savedUserPath = localStorage.getItem(`drawing-step-${id}-${subId}`);
         if (savedUserPath) {
           try {
@@ -108,14 +115,13 @@ const SubStep = () => {
             console.error("저장된 그림 데이터를 불러오는 중 에러 발생:", e);
           }
         } else {
-          // 저장된 데이터가 없으면 progress 0으로 설정
           setProgress(0);
         }
       };
     }
   };
 
-  // Clear 버튼: 저장된 데이터 삭제 및 진행률 0 업데이트
+  // Clear 버튼: 초기화 및 저장된 데이터 삭제
   const clearCanvas = () => {
     drawTemplate();
     setUserPath([]);
@@ -125,8 +131,7 @@ const SubStep = () => {
     setMessage("🎨 그림을 그려보세요!");
   };
 
-  // 마우스 이벤트 객체 e를 이용해, 현재 캔버스 내부의 정확한 픽셀 좌표를 계산
-  // 캔버스의 실제 크기와 브라우저에 표시되는 크기 간의 비율을 고려하여 좌표를 조정
+  // 캔버스 내 정확한 마우스 좌표 계산 (스케일 고려)
   const getMousePos = (e) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
@@ -135,41 +140,27 @@ const SubStep = () => {
     return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
   };
 
-  // 마우스 버튼을 누를때 그리기 모드 활성화
-  const startDrawing = (e) => {
-    setDrawing(true);
-    setMessage("🖌️ 그리는 중...");
-    const ctx = ctxRef.current;
-    ctx.lineWidth = lineThickness;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.strokeStyle = "#000000";
-    const { x, y } = getMousePos(e);
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-  };
-
-  const draw = (e) => {
-    if (!drawing) return;
+  // 클릭 시 그리기 모드를 토글하는 함수
+  const handleCanvasClick = (e) => {
     const ctx = ctxRef.current;
     const { x, y } = getMousePos(e);
-    setUserPath((prevPath) => {
-      const newPath = [...prevPath, { x, y }];
-      const perc = computeMatchPercentage(newPath);
-      setProgress(perc);
-      setMessage(`✅ 진행률: ${perc.toFixed(1)}%`);
-      return newPath;
-    });
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  };
-
-  const stopDrawing = () => {
-    setDrawing(false);
-    ctxRef.current.closePath();
-    setUserPath((prevPath) => {
-      const perc = computeMatchPercentage(prevPath);
-      localStorage.setItem(`drawing-step-${id}-${subId}`, JSON.stringify(prevPath));
+    if (!drawing) {
+      // 첫 번째 클릭: 그리기 시작
+      setDrawing(true);
+      ctx.lineWidth = lineThickness;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "#000000";
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      setUserPath([{ x, y }]);
+      setMessage("🖌️ 그리는 중...");
+    } else {
+      // 두 번째 클릭: 그리기 종료
+      setDrawing(false);
+      ctx.closePath();
+      const perc = computeMatchPercentage(userPath);
+      localStorage.setItem(`drawing-step-${id}-${subId}`, JSON.stringify(userPath));
       localStorage.setItem(`step-${id}-${subId}`, perc.toFixed(1));
       setProgress(perc);
       if (perc >= 70) {
@@ -177,11 +168,46 @@ const SubStep = () => {
       } else {
         setMessage(`❌ 다시 시도하세요! / 진행률: ${perc.toFixed(1)}%`);
       }
-      return prevPath;
+    }
+  };
+
+  // 마우스 이동 시, 그리기 모드가 활성화되어 있으면 선 그리기
+  const handleMouseMove = (e) => {
+    if (!drawing) return;
+    const ctx = ctxRef.current;
+    const { x, y } = getMousePos(e);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    setUserPath((prevPath) => {
+      const newPath = [...prevPath, { x, y }];
+      const perc = computeMatchPercentage(newPath);
+      setProgress(perc);
+      setMessage(`✅ 진행률: ${perc.toFixed(1)}%`);
+      return newPath;
     });
   };
 
-  // 진행률 계산: 매칭 영역 두께(matchThickness)를 반영
+  // 캔버스 영역을 벗어났을 때 그리기 모드 취소 및 저장 처리
+  const handleCanvasMouseLeave = () => {
+    if (drawing) {
+      setDrawing(false);
+      ctxRef.current.closePath();
+      const perc = computeMatchPercentage(userPath);
+      localStorage.setItem(`drawing-step-${id}-${subId}`, JSON.stringify(userPath));
+      localStorage.setItem(`step-${id}-${subId}`, perc.toFixed(1));
+      setProgress(perc);
+      if (perc >= 70) {
+        setMessage(`🎉 성공적으로 그렸습니다! (${perc.toFixed(1)}%)`);
+      } else {
+        setMessage(`❌ 다시 시도하세요! / 진행률: ${perc.toFixed(1)}%`);
+      }
+    }
+    if (canvasRef.current) {
+      canvasRef.current.style.cursor = "default";
+    }
+  };
+
+  // 진행률 계산: 매칭 영역 두께를 반영
   const computeMatchPercentage = (path) => {
     if (!templateData || totalTemplatePixels === 0) return 0;
     const width = templateData.width;
@@ -257,6 +283,10 @@ const SubStep = () => {
       <h2 className={styles.subStepTitle}>
         Step {id} - {subId}
       </h2>
+      {/* 캔버스 클릭시 붓 모드로 전환되는 안내 문구 */}
+      <div className={styles.instruction}>
+        캔버스를 응시하면 붓 모드로 전환됩니다. 한 번 응시하여 그리기를 시작하고, 다시 응시하면 종료됩니다.
+      </div>
       <div className={styles.mainArea}>
         <div className={styles.canvasWrapper}>
           <button className={styles.backButton} onClick={() => navigate(`/step/${id}`)}>
@@ -265,19 +295,18 @@ const SubStep = () => {
           <button className={styles.clearButton} onClick={clearCanvas}>
             초기화
           </button>
-          {/* 메인 캔버스 */}
+          {/* 모드 표시: 캔버스 내부 우측 상단 등 원하는 위치에 표시 가능 */}
+          <div className={styles.modeIndicator}>
+            {drawing ? "그리기 모드" : "일반 모드"}
+          </div>
           <canvas
             ref={canvasRef}
             className={styles.drawingCanvas}
             width={1000}
             height={600}
-            onMouseDown={startDrawing}
-            onMouseMove={draw}
-            onMouseUp={stopDrawing}
-            onMouseEnter={() =>
-              (canvasRef.current.style.cursor = "url('/images/brush handwriting.cur'), auto")
-            }
-            onMouseLeave={() => (canvasRef.current.style.cursor = "default")}
+            onClick={handleCanvasClick}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleCanvasMouseLeave}
           />
         </div>
       </div>
