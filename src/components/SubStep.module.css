@@ -27,6 +27,14 @@
   margin-bottom: 20px;
 }
 
+/* 안내 문구 스타일 */
+.instruction {
+  font-family: 'GangwonEdu_OTFBoldA';
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 20px;
+}
+
 /* 캔버스와 웹캠 영역을 감싸는 mainArea (웹캠 영역은 별도 추가 가능) */
 .mainArea {
   display: flex;
@@ -68,8 +76,8 @@
 
 .subStepControls button {
   font-family: 'GangwonEdu_OTFBoldA';
-  padding: 15px 30px; /* 패딩을 늘려서 버튼이 더 커집니다 */
-  font-size: 2rem;    /* 글자 크기를 키웁니다 */
+  padding: 15px 30px;
+  font-size: 2rem;
   border: none;
   cursor: pointer;
   border-radius: 5px;
@@ -148,6 +156,20 @@
   color: #d41e1e;
 }
 
+  
+/* 모드 표시 (캔버스 영역 내 원하는 위치에 배치) */
+.modeIndicator {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-family: 'GangwonEdu_OTFBoldA';
+  font-size: 2rem;
+  color: #333;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
 /* 웹캠 */
 .webcamContainer {
   width: 300px;
@@ -173,4 +195,3 @@
 html,
 body {
   overflow: hidden;
-}
