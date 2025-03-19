@@ -156,6 +156,7 @@
   color: #d41e1e;
 }
 
+  
 /* 모드 표시 (캔버스 영역 내 원하는 위치에 배치) */
 .modeIndicator {
   position: absolute;
@@ -168,3 +169,29 @@
   padding: 5px 10px;
   border-radius: 5px;
 }
+
+/* 웹캠 */
+.webcamContainer {
+  width: 300px;
+  height: 300px;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 2px solid #ccc;
+  position: fixed;
+  bottom: 20px;  
+  right: 40px;
+  background: white;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* 웹캠 */
+.webcamFeed {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 스크롤 없애기 */
+html,
+body {
+  overflow: hidden;

@@ -16,6 +16,10 @@ const Home = () => {
       <button className={styles.startButton} onClick={handlePlay}>
         시작하기
       </button>
+      {/* 오른쪽 아래 웹캠 화면 추가 */}
+      <div className={styles.webcamContainer}>
+        <img src="http://localhost:8000/video" className={styles.webcamFeed} />
+      </div>
     </div>
   );
 };
